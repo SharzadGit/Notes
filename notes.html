@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Secure Notes Viewer</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      padding: 50px;
+    }
+    #notes {
+      display: none;
+      margin-top: 30px;
+      font-size: 20px;
+      line-height: 1.6;
+    }
+    .warning {
+      color: red;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Secure Notes</h1>
+  <button onclick="startSecureView()">View Notes</button>
+
+  <div id="notes">
+    <p class="warning">⚠️ Screenshotting and tab switching are not allowed.</p>
+    <p>This is a protected note. If you exit fullscreen or switch tabs, you will be redirected.</p>
+    <p>📝 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin non mi nec libero.</p>
+  </div>
+
+  <script>
+    function startSecureView() {
+      const elem = document.documentElement;
+
+      if (elem.requestFullscreen) elem.requestFullscreen();
+      else if (elem.webkitRequestFullscreen) elem.webkitRequestFullscreen();
+      else if (elem.msRequestFullscreen) elem.msRequestFullscreen();
+
+      document.querySelector("button").style.display = "none";
+      document.getElementById("notes").style.display = "block";
+    }
+
+    // Exit if user leaves fullscreen
+    document.addEventListener("fullscreenchange", () => {
+      if (!document.fullscreenElement) {
+        alert("You exited fullscreen. Returning to home.");
+        location.reload(); // or redirect to login
+      }
+    });
+
+    // Exit if user switches tabs
+    document.addEventListener("visibilitychange", () => {
+      if (document.hidden) {
+        alert("Tab switch detected. Returning to home.");
+        location.reload(); // or redirect
+      }
+    });
+    // Block certain keyboard shortcuts
+document.addEventListener("keydown", function (e) {
+  // Block F12 (Dev Tools)
+  if (e.key === "F12") {
+    e.preventDefault();
+    alert("F12 is disabled.");
+  }
+
+  // Block Ctrl+S, Ctrl+P, Ctrl+U, Ctrl+C, Ctrl+Shift+I
+  if (
+    (e.ctrlKey && ["s", "p", "u", "c"].includes(e.key.toLowerCase())) ||
+    (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "i")
+  ) {
+    e.preventDefault();
+    alert("This action is disabled.");
+  }
+  
+
+  // Block Esc (to prevent fullscreen exit prompt)
+  if (e.key === "Escape") {
+    e.preventDefault();
+    alert("Escape key is disabled in secure mode.");
+  }
+});
+
+  </script>
+
+</body>
+</html>
