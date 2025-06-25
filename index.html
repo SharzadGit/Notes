@@ -25,7 +25,7 @@
 <body>
 
   <h1>Secure Notes</h1>
-  <button onclick="startSecureView()">View Notes</button>
+  <button id="startBtn" onclick="startSecureView()">View Notes</button>
 
   <div id="notes">
     <p class="warning">⚠️ Screenshotting and tab switching are not allowed.</p>
@@ -34,57 +34,76 @@
   </div>
 
   <script>
-    function startSecureView() {
-      const elem = document.documentElement;
+    // Check if URL contains correct SEB token
+    const params = new URLSearchParams(window.location.search);
+    const sebKey = params.get("sebkey");
 
-      if (elem.requestFullscreen) elem.requestFullscreen();
-      else if (elem.webkitRequestFullscreen) elem.webkitRequestFullscreen();
-      else if (elem.msRequestFullscreen) elem.msRequestFullscreen();
+    if (sebKey !== "abc123") {
+      document.body.innerHTML = `
+        <div style="text-align: center; margin-top: 100px;">
+          <h2>This page requires Safe Exam Browser (SEB)</h2>
+          <p>To view the notes securely, please install SEB and launch the exam file provided.</p>
+          <p>
+            <a href="https://safeexambrowser.org/download_en.html" target="_blank">
+              👉 Click here to download SEB
+            </a>
+          </p>
+        </div>
+      `;
+    } else {
+      function startSecureView() {
+        const elem = document.documentElement;
 
-      document.querySelector("button").style.display = "none";
-      document.getElementById("notes").style.display = "block";
+        if (elem.requestFullscreen) elem.requestFullscreen();
+        else if (elem.webkitRequestFullscreen) elem.webkitRequestFullscreen();
+        else if (elem.msRequestFullscreen) elem.msRequestFullscreen();
+
+        document.getElementById("startBtn").style.display = "none";
+        document.getElementById("notes").style.display = "block";
+      }
+
+      // Exit if user leaves fullscreen
+      document.addEventListener("fullscreenchange", () => {
+        if (!document.fullscreenElement) {
+          alert("You exited fullscreen. Returning to home.");
+          location.reload();
+        }
+      });
+
+      // Exit if user switches tabs
+      document.addEventListener("visibilitychange", () => {
+        if (document.hidden) {
+          alert("Tab switch detected. Returning to home.");
+          location.reload();
+        }
+      });
+
+      // Block certain keyboard shortcuts
+      document.addEventListener("keydown", function (e) {
+        const key = e.key.toLowerCase();
+
+        // Block F12
+        if (e.key === "F12") {
+          e.preventDefault();
+          alert("F12 is disabled.");
+        }
+
+        // Block Ctrl+S, Ctrl+P, Ctrl+U, Ctrl+C, Ctrl+Shift+I
+        if (
+          (e.ctrlKey && ["s", "p", "u", "c"].includes(key)) ||
+          (e.ctrlKey && e.shiftKey && key === "i")
+        ) {
+          e.preventDefault();
+          alert("This action is disabled.");
+        }
+
+        // Block Escape
+        if (e.key === "Escape") {
+          e.preventDefault();
+          alert("Escape key is disabled in secure mode.");
+        }
+      });
     }
-
-    // Exit if user leaves fullscreen
-    document.addEventListener("fullscreenchange", () => {
-      if (!document.fullscreenElement) {
-        alert("You exited fullscreen. Returning to home.");
-        location.reload(); // or redirect to login
-      }
-    });
-
-    // Exit if user switches tabs
-    document.addEventListener("visibilitychange", () => {
-      if (document.hidden) {
-        alert("Tab switch detected. Returning to home.");
-        location.reload(); // or redirect
-      }
-    });
-    // Block certain keyboard shortcuts
-document.addEventListener("keydown", function (e) {
-  // Block F12 (Dev Tools)
-  if (e.key === "F12") {
-    e.preventDefault();
-    alert("F12 is disabled.");
-  }
-
-  // Block Ctrl+S, Ctrl+P, Ctrl+U, Ctrl+C, Ctrl+Shift+I
-  if (
-    (e.ctrlKey && ["s", "p", "u", "c"].includes(e.key.toLowerCase())) ||
-    (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "i")
-  ) {
-    e.preventDefault();
-    alert("This action is disabled.");
-  }
-  
-
-  // Block Esc (to prevent fullscreen exit prompt)
-  if (e.key === "Escape") {
-    e.preventDefault();
-    alert("Escape key is disabled in secure mode.");
-  }
-});
-
   </script>
 
 </body>
