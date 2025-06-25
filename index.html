@@ -39,18 +39,25 @@
     const sebKey = params.get("sebkey");
 
     if (sebKey !== "abc123") {
-      document.body.innerHTML = `
-        <div style="text-align: center; margin-top: 100px;">
-          <h2>This page requires Safe Exam Browser (SEB)</h2>
-          <p>To view the notes securely, please install SEB and launch the exam file provided.</p>
-          <p>
-            <a href="https://safeexambrowser.org/download_en.html" target="_blank">
-              👉 Click here to download SEB
-            </a>
-          </p>
-        </div>
-      `;
-    } else {
+  document.body.innerHTML = `
+    <div style="text-align: center; margin-top: 100px;">
+      <h2>This page requires Safe Exam Browser (SEB)</h2>
+      <p>To view the notes securely, please install SEB and launch the exam file provided.</p>
+      <p>
+        <a href="https://safeexambrowser.org/download_en.html" target="_blank">
+          👉 Click here to download SEB
+        </a>
+      </p>
+      <p style="margin-top: 30px;">
+        🔐 If you already have SEB installed:<br>
+        <a href="seb://open?url=https://your-vercel-app.vercel.app/?sebkey=abc123">
+          ➤ Click here to open in SEB
+        </a>
+      </p>
+    </div>
+  `;
+}
+ else {
       function startSecureView() {
         const elem = document.documentElement;
 
